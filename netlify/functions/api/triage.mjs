@@ -1,4 +1,4 @@
-const OpenAI = require('openai');
+import OpenAI from 'openai';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -49,7 +49,7 @@ Important Disclaimers:
 - Use culturally appropriate emergency contact information (911 in US, etc.)`;
 };
 
-exports.handler = async (event, context) => {
+export const handler = async (event, context) => {
   // Enable CORS
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -75,7 +75,36 @@ exports.handler = async (event, context) => {
       };
     }
 
-    const { message, history = [], language = 'en' } = JSON.parse(event.body);
+    // Validate request body
+    if (!event.body) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Request body is required' }),
+      };
+    }
+
+    let body;
+    try {
+      body = JSON.parse(event.body);
+    } catch (parseError) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Invalid JSON in request body' }),
+      };
+    }
+
+    const { message, history = [], language = 'en' } = body;
+
+    // Validate required fields
+    if (!message) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Message is required' }),
+      };
+    }
 
     if (!process.env.OPENAI_API_KEY) {
       return {
@@ -140,12 +169,22 @@ exports.handler = async (event, context) => {
   } catch (error) {
     console.error('Triage API error:', error);
 
+    // Return a more specific error message
+    let errorMessage = "I'm experiencing technical difficulties right now. If this is an emergency, please call 911 or go to your nearest emergency room immediately.";
+    
+    if (error.message && error.message.includes('API key')) {
+      errorMessage = "AI service configuration error. Please contact support.";
+    } else if (error.message && error.message.includes('rate limit')) {
+      errorMessage = "Service temporarily overloaded. Please try again in a moment.";
+    }
+
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({
-        message: "I'm experiencing technical difficulties right now. If this is an emergency, please call 911 or go to your nearest emergency room immediately.",
-        triageResult: null
+        message: errorMessage,
+        triageResult: null,
+        error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
       }),
     };
   }

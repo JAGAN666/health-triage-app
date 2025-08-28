@@ -66,3 +66,6 @@ doctor2_cookies.txt
 
 # OS
 Thumbs.db
+
+# Local Netlify folder
+.netlify

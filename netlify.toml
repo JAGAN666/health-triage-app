@@ -6,9 +6,16 @@
   NODE_VERSION = "18"
 
 [[redirects]]
+  from = "/api/triage"
+  to = "/.netlify/functions/api/triage"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"
   status = 200
+  force = true
 
 [[redirects]]
   from = "/*"
@@ -17,6 +24,7 @@
 
 [functions]
   directory = "netlify/functions"
+  node_bundler = "esbuild"
 
 [[headers]]
   for = "/*"
