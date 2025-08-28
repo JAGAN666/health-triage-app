@@ -68,7 +68,7 @@ const TIME_SLOTS: TimeSlot[] = [
   { time: '4:30 PM', available: true }
 ];
 
-export default function AppointmentsPage() {
+function AppointmentsForm() {
   const searchParams = useSearchParams();
   const providerId = searchParams.get('provider');
   
