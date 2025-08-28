@@ -1,26 +1,430 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@layer base {
+  /* WCAG AAA Accessibility - Motion Preferences */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+  /* Custom properties for motion */
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --motion-duration: 200ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root {
+      --motion-duration: 0ms;
+    }
+  }
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 94.1%;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+  
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    text-rendering: optimizeLegibility;
+  }
+  
+  /* Custom scrollbar styles */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(229, 231, 235, 0.5);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border-radius: 1.5rem;
+  }
+  
+  .gradient-text {
+    background: linear-gradient(to right, #111827, #1e40af, #111827);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(139, 92, 246, 0.3);
+    border-radius: 10px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(139, 92, 246, 0.5);
+  }
+
+  /* WCAG AAA Accessibility Styles */
+  
+  /* Screen reader only content */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Show on focus for screen readers */
+  .sr-only:focus,
+  .focus\:not-sr-only:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: inherit;
+    margin: inherit;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+
+  /* High contrast focus indicators (WCAG AAA compliant) */
+  .focus-visible {
+    outline: 3px solid #2563eb !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 0 2px #ffffff !important;
+  }
+
+  /* Enhanced button focus for accessibility */
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: 3px solid #2563eb !important;
+    outline-offset: 2px !important;
+    box-shadow: 0 0 0 2px #ffffff, 0 0 0 5px rgba(37, 99, 235, 0.3) !important;
+  }
+
+  /* Skip links */
+  .skip-link {
+    position: absolute;
+    top: -40px;
+    left: 6px;
+    background: #ffffff;
+    color: #1f2937;
+    padding: 8px 16px;
+    text-decoration: none;
+    font-weight: 600;
+    border-radius: 6px;
+    border: 2px solid #2563eb;
+    z-index: 9999;
+    transition: top 0.2s;
+  }
+
+  .skip-link:focus {
+    top: 6px;
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    * {
+      border-color: currentColor !important;
+    }
+
+    .glass-card {
+      background: #ffffff !important;
+      border: 2px solid #000000 !important;
+      backdrop-filter: none !important;
+    }
+    
+    button,
+    [role="button"] {
+      border: 2px solid currentColor !important;
+    }
+  }
+
+  /* Text size and spacing for readability (WCAG AAA) */
+  body {
+    line-height: 1.6;
+    font-size: 16px;
+  }
+  
+  /* Healthcare professional theme */
+  .healthcare-gradient {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #3b82f6 100%);
+  }
+  
+  .healthcare-text-gradient {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #3b82f6 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .healthcare-shadow {
+    box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.1), 0 8px 10px -6px rgba(59, 130, 246, 0.1);
+  }
+  
+  .healthcare-shadow-lg {
+    box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.1), 0 10px 10px -5px rgba(59, 130, 246, 0.04);
+  }
+  
+  /* Professional medical colors */
+  .medical-blue { color: #3b82f6; }
+  .medical-purple { color: #8b5cf6; }
+  .medical-green { color: #10b981; }
+  .medical-red { color: #ef4444; }
+  .medical-orange { color: #f59e0b; }
+  
+  /* Professional backgrounds */
+  .bg-medical-blue { background-color: rgba(59, 130, 246, 0.05); }
+  .bg-medical-purple { background-color: rgba(139, 92, 246, 0.05); }
+  .bg-medical-green { background-color: rgba(16, 185, 129, 0.05); }
+  .bg-medical-red { background-color: rgba(239, 68, 68, 0.05); }
+  
+  /* Glass morphism for healthcare cards */
+  .healthcare-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Performance optimizations */
+  .will-change-transform { will-change: transform; }
+  .will-change-opacity { will-change: opacity; }
+  .gpu-accelerated { transform: translateZ(0); }
+  
+  /* Smooth scrolling performance */
+  .smooth-scroll {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    line-height: 1.4;
+    margin-bottom: 0.5em;
+  }
+
+  p {
+    margin-bottom: 1em;
+    max-width: 70ch; /* Optimal reading line length */
+  }
+
+  /* Ensure sufficient spacing for touch targets (WCAG AAA) */
+  button,
+  [role="button"],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  a {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 8px 16px;
+  }
+
+  /* Healthcare-specific accessibility */
+  .health-alert {
+    border: 3px solid #dc2626;
+    background: #fef2f2;
+    color: #991b1b;
+    padding: 16px;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+
+  .health-warning {
+    border: 3px solid #d97706;
+    background: #fffbeb;
+    color: #92400e;
+    padding: 16px;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+
+  .health-success {
+    border: 3px solid #059669;
+    background: #f0fdf4;
+    color: #065f46;
+    padding: 16px;
+    border-radius: 8px;
+    font-weight: 600;
+  }
+
+  /* Color indicators that work for colorblind users */
+  .risk-low::before {
+    content: "✓ ";
+    color: #059669;
+    font-weight: bold;
+  }
+
+  .risk-moderate::before {
+    content: "⚠ ";
+    color: #d97706;
+    font-weight: bold;
+  }
+
+  .risk-high::before {
+    content: "⚠ ";
+    color: #dc2626;
+    font-weight: bold;
+  }
+
+  .risk-critical::before {
+    content: "🚨 ";
+    color: #991b1b;
+    font-weight: bold;
+  }
+
+  /* Improved form accessibility */
+  label {
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  input[aria-invalid="true"],
+  textarea[aria-invalid="true"],
+  select[aria-invalid="true"] {
+    border: 2px solid #dc2626 !important;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1) !important;
+  }
+
+  .form-error {
+    color: #991b1b;
+    font-size: 14px;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .form-error::before {
+    content: "⚠";
+    font-weight: bold;
+  }
+
+  /* Loading states */
+  .loading {
+    position: relative;
+    color: transparent !important;
+  }
+
+  .loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #e5e7eb;
+    border-top-color: #2563eb;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Respect motion preferences for loading animation */
+  @media (prefers-reduced-motion: reduce) {
+    .loading::after {
+      animation: none;
+      border-top-color: #2563eb;
+      content: "...";
+      border: none;
+      color: #2563eb;
+      background: none;
+      width: auto;
+      height: auto;
+      margin: 0;
+      position: static;
+    }
+    
+    .loading {
+      color: #6b7280 !important;
+    }
+  }
 }

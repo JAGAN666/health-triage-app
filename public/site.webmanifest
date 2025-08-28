@@ -1,0 +1,65 @@
+{
+  "name": "HealthTriage AI - Professional Healthcare Platform",
+  "short_name": "HealthTriage AI",
+  "description": "AI-powered health triage, telehealth consultations, emergency detection, and health analytics. HIPAA compliant healthcare technology platform.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "categories": ["healthcare", "medical", "health", "telemedicine"],
+  "lang": "en-US",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Health Assessment",
+      "description": "Quick AI-powered health triage",
+      "url": "/triage",
+      "icons": [
+        {
+          "src": "/favicon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Emergency",
+      "description": "Emergency detection and alerts",
+      "url": "/emergency",
+      "icons": [
+        {
+          "src": "/favicon.svg", 
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Telehealth",
+      "description": "Video consultations with providers",
+      "url": "/telehealth",
+      "icons": [
+        {
+          "src": "/favicon.svg",
+          "sizes": "any", 
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ]
+}
