@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -30,7 +31,9 @@ import {
   Bell
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { useSearchParams } from "next/navigation";
+
+// Force dynamic rendering to prevent static generation issues
+export const dynamic = 'force-dynamic';
 
 interface TimeSlot {
   time: string;
@@ -591,5 +594,13 @@ export default function AppointmentsPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function AppointmentsPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AppointmentsForm />
+    </Suspense>
   );
 }
