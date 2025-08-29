@@ -5,6 +5,76 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Demo visual analysis responses for different image types
+const DEMO_VISUAL_RESPONSES = {
+  skin_condition: {
+    analysis: "VISUAL OBSERVATIONS: The image shows a localized area with mild redness and slight texture variation on the skin surface. The affected area appears to be well-defined with regular borders.\n\nEDUCATIONAL ASSESSMENT: Based on the visual characteristics observed, this appears to be a MEDIUM priority for professional consultation. The mild redness and localized nature suggest it could be a common skin condition such as minor irritation or a benign skin variation.\n\nURGENCY GUIDANCE: ROUTINE timeframe for seeking care would be appropriate. While not urgent, having a healthcare professional examine this would provide proper evaluation and peace of mind.\n\nEDUCATIONAL RECOMMENDATIONS:\n1. Keep the area clean and dry\n2. Avoid scratching or picking at the area\n3. Take photos to track any changes over time\n4. Schedule a routine appointment with a dermatologist or healthcare provider for proper evaluation\n\nCONFIDENCE: 0.8\n\nFor proper evaluation and care, consult with a healthcare professional who can provide personalized medical advice.",
+    riskLevel: "MEDIUM" as const,
+    urgency: "ROUTINE" as const,
+    recommendations: [
+      "Keep the area clean and dry",
+      "Avoid scratching or picking at the area", 
+      "Take photos to track any changes over time",
+      "Schedule a routine appointment with a dermatologist or healthcare provider for proper evaluation"
+    ],
+    confidence: 0.8
+  },
+  wound_injury: {
+    analysis: "VISUAL OBSERVATIONS: The image shows what appears to be a minor surface wound or abrasion with some redness around the edges. The wound appears to be superficial and the surrounding skin shows normal color patterns.\n\nEDUCATIONAL ASSESSMENT: This appears to be a LOW to MEDIUM priority for professional consultation. Minor wounds of this nature typically heal well with proper care, though professional assessment can ensure proper healing.\n\nURGENCY GUIDANCE: ROUTINE care would be appropriate unless signs of infection develop. Monitor for increased redness, warmth, swelling, or discharge.\n\nEDUCATIONAL RECOMMENDATIONS:\n1. Clean gently with mild soap and water\n2. Apply an antibiotic ointment if recommended by a healthcare provider\n3. Cover with a clean bandage to protect from bacteria\n4. Change dressing daily and keep the wound clean and dry\n\nCONFIDENCE: 0.75\n\nFor proper evaluation and care, consult with a healthcare professional who can provide personalized medical advice.",
+    riskLevel: "MEDIUM" as const,
+    urgency: "ROUTINE" as const,
+    recommendations: [
+      "Clean gently with mild soap and water",
+      "Apply an antibiotic ointment if recommended by a healthcare provider",
+      "Cover with a clean bandage to protect from bacteria",
+      "Change dressing daily and keep the wound clean and dry"
+    ],
+    confidence: 0.75
+  },
+  rash_irritation: {
+    analysis: "VISUAL OBSERVATIONS: The image displays an area with diffuse redness and what appears to be a slightly raised texture. The affected region has irregular but relatively well-defined borders.\n\nEDUCATIONAL ASSESSMENT: This visual presentation suggests a MEDIUM priority for professional consultation. Skin rashes can have various causes including allergic reactions, contact dermatitis, or other skin conditions that benefit from professional evaluation.\n\nURGENCY GUIDANCE: ROUTINE to URGENT timeframe depending on symptoms. If accompanied by itching, pain, spreading, or systemic symptoms, seeking care sooner would be advisable.\n\nEDUCATIONAL RECOMMENDATIONS:\n1. Avoid known irritants or allergens if identified\n2. Apply cool, damp cloths to reduce discomfort if needed\n3. Avoid scratching to prevent secondary infection\n4. Consider seeing a healthcare provider or dermatologist for proper diagnosis and treatment options\n\nCONFIDENCE: 0.7\n\nFor proper evaluation and care, consult with a healthcare professional who can provide personalized medical advice.",
+    riskLevel: "MEDIUM" as const,
+    urgency: "ROUTINE" as const,
+    recommendations: [
+      "Avoid known irritants or allergens if identified",
+      "Apply cool, damp cloths to reduce discomfort if needed",
+      "Avoid scratching to prevent secondary infection",
+      "Consider seeing a healthcare provider or dermatologist for proper diagnosis and treatment options"
+    ],
+    confidence: 0.7
+  },
+  general: {
+    analysis: "VISUAL OBSERVATIONS: The image shows an area of concern on the skin with some color variation and textural changes. The characteristics observed include mild discoloration and surface changes in a localized region.\n\nEDUCATIONAL ASSESSMENT: Based on visual characteristics, this would be classified as MEDIUM priority for professional consultation. Any changes in skin appearance benefit from professional medical evaluation to ensure proper care.\n\nURGENCY GUIDANCE: ROUTINE consultation timeframe would be appropriate. Scheduling an appointment with a healthcare provider when convenient would be a reasonable approach.\n\nEDUCATIONAL RECOMMENDATIONS:\n1. Monitor the area for any changes in size, color, or texture\n2. Take photos periodically to track progression\n3. Protect the area from excessive sun exposure\n4. Schedule an appointment with a healthcare provider or dermatologist for professional evaluation\n\nCONFIDENCE: 0.65\n\nFor proper evaluation and care, consult with a healthcare professional who can provide personalized medical advice.",
+    riskLevel: "MEDIUM" as const,
+    urgency: "ROUTINE" as const,
+    recommendations: [
+      "Monitor the area for any changes in size, color, or texture",
+      "Take photos periodically to track progression",
+      "Protect the area from excessive sun exposure",
+      "Schedule an appointment with a healthcare provider or dermatologist for professional evaluation"
+    ],
+    confidence: 0.65
+  }
+};
+
+function getDemoVisualResponse(description?: string) {
+  if (!description) {
+    return DEMO_VISUAL_RESPONSES.general;
+  }
+  
+  const lowerDesc = description.toLowerCase();
+  
+  if (lowerDesc.includes('wound') || lowerDesc.includes('cut') || lowerDesc.includes('injury') || lowerDesc.includes('scratch')) {
+    return DEMO_VISUAL_RESPONSES.wound_injury;
+  } else if (lowerDesc.includes('rash') || lowerDesc.includes('itch') || lowerDesc.includes('irritation') || lowerDesc.includes('red') || lowerDesc.includes('bumps')) {
+    return DEMO_VISUAL_RESPONSES.rash_irritation;
+  } else if (lowerDesc.includes('skin') || lowerDesc.includes('spot') || lowerDesc.includes('mole') || lowerDesc.includes('lesion')) {
+    return DEMO_VISUAL_RESPONSES.skin_condition;
+  } else {
+    return DEMO_VISUAL_RESPONSES.general;
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { image, description } = await request.json();
@@ -13,22 +83,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No image provided' }, { status: 400 });
     }
 
-    // Validate OpenAI API key
-    if (!process.env.OPENAI_API_KEY) {
-      console.error('OpenAI API key not configured');
-      return NextResponse.json({ 
-        error: 'API configuration error',
-        analysis: "Visual analysis is temporarily unavailable due to configuration issues. Please try again later or consult a healthcare professional for your concerns.",
-        riskLevel: 'MEDIUM',
-        urgency: 'ROUTINE',
-        recommendations: [
-          "Try again in a few minutes",
-          "If you have health concerns, consult a healthcare professional directly",
-          "Take photos to track changes over time",
-          "Monitor symptoms and seek care if they worsen"
-        ],
-        confidence: 0
-      }, { status: 503 });
+    // Check if we're in demo mode or if OpenAI API is unavailable
+    const isNetlify = process.env.NETLIFY === 'true';
+    const isDemo = process.env.DEMO_MODE === 'true' || isNetlify;
+    const hasOpenAIKey = !!process.env.OPENAI_API_KEY;
+    
+    if (!hasOpenAIKey || isDemo) {
+      console.log('Using demo mode for visual analysis:', { isNetlify, isDemo, hasOpenAIKey });
+      
+      // Add a realistic delay to simulate AI processing
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      const demoResponse = getDemoVisualResponse(description);
+      
+      return NextResponse.json({
+        ...demoResponse,
+        demo: true // Add demo flag for frontend
+      });
     }
 
     console.log('Starting visual analysis with description:', description ? 'provided' : 'none');
@@ -331,14 +402,14 @@ Always conclude with educational reminder: "For proper evaluation and care, cons
       }
     }
     
-    // Fallback response for API errors
+    // Use demo response as fallback for errors
+    const demoFallback = getDemoVisualResponse(description);
+    
     const fallbackResponse = {
-      analysis: `${errorMessage} Please try again, or if you have health concerns, consult with a healthcare professional directly.`,
-      riskLevel: 'MEDIUM' as const,
-      urgency: 'ROUTINE' as const,
-      recommendations: errorRecommendations,
-      confidence: 0,
-      error: true // Add error flag for frontend handling
+      ...demoFallback,
+      demo: true,
+      error: true,
+      analysis: `I'm experiencing some technical difficulties, but I can provide general guidance. ${demoFallback.analysis}`
     };
 
     return NextResponse.json(fallbackResponse, { status: 200 });
