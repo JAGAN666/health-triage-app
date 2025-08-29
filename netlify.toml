@@ -1,6 +1,6 @@
 [build]
-  command = "npm run build"
-  publish = ".next"
+  command = "npm run netlify:build"
+  publish = "out"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
@@ -9,8 +9,11 @@
   NODE_VERSION = "18"
   NETLIFY = "true"
 
-# Let Next.js handle API routes directly via @netlify/plugin-nextjs
-# No redirects needed - Next.js API routes will work natively
+# API route redirects to ensure proper handling
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/___netlify-handler"
+  status = 200
 
 [functions]
   directory = "netlify/functions"

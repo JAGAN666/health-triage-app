@@ -83,8 +83,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No image provided' }, { status: 400 });
     }
 
-    // Check if OpenAI API is available (prioritize real API)
-    const hasOpenAIKey = !!process.env.OPENAI_API_KEY;
+    // Debug environment variables
+    const openAIKey = process.env.OPENAI_API_KEY;
+    const hasOpenAIKey = !!openAIKey;
+    
+    console.log('=== VISUAL ANALYSIS API DEBUG INFO ===');
+    console.log('Environment:', process.env.NODE_ENV);
+    console.log('Netlify detected:', !!process.env.NETLIFY);
+    console.log('OpenAI key exists:', hasOpenAIKey);
+    console.log('OpenAI key length:', openAIKey?.length || 0);
+    console.log('OpenAI key prefix:', openAIKey?.substring(0, 10) || 'none');
+    console.log('All env keys:', Object.keys(process.env).filter(key => key.includes('OPENAI')));
+    console.log('=======================================');
     
     if (!hasOpenAIKey) {
       console.log('OpenAI API key not available, using demo mode fallback for visual analysis');

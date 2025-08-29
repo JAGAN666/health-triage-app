@@ -4,13 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "build": "next build",
+    "build:netlify": "next build && next export",
     "start": "next start",
     "lint": "eslint",
     "export": "next build && next export",
     "deploy": "npm run build && touch out/.nojekyll",
     "netlify:dev": "netlify dev",
-    "netlify:build": "npm run build",
+    "netlify:build": "next build",
     "netlify:deploy": "netlify deploy --prod"
   },
   "dependencies": {
