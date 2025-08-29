@@ -83,13 +83,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No image provided' }, { status: 400 });
     }
 
-    // Check if we're in demo mode or if OpenAI API is unavailable
-    const isNetlify = process.env.NETLIFY === 'true';
-    const isDemo = process.env.DEMO_MODE === 'true' || isNetlify;
+    // Check if OpenAI API is available (prioritize real API)
     const hasOpenAIKey = !!process.env.OPENAI_API_KEY;
     
-    if (!hasOpenAIKey || isDemo) {
-      console.log('Using demo mode for visual analysis:', { isNetlify, isDemo, hasOpenAIKey });
+    if (!hasOpenAIKey) {
+      console.log('OpenAI API key not available, using demo mode fallback for visual analysis');
       
       // Add a realistic delay to simulate AI processing
       await new Promise(resolve => setTimeout(resolve, 2000));
@@ -101,6 +99,8 @@ export async function POST(request: NextRequest) {
         demo: true // Add demo flag for frontend
       });
     }
+    
+    console.log('Using real OpenAI GPT-4V for visual analysis');
 
     console.log('Starting visual analysis with description:', description ? 'provided' : 'none');
 

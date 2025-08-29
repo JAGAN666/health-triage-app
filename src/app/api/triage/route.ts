@@ -172,13 +172,11 @@ export async function POST(request: NextRequest) {
   try {
     const { message, history, language = 'en' } = await request.json();
     
-    // Check if we're in demo mode or if OpenAI API is unavailable
-    const isNetlify = process.env.NETLIFY === 'true';
-    const isDemo = process.env.DEMO_MODE === 'true' || isNetlify;
+    // Check if OpenAI API is available (prioritize real API)
     const hasOpenAIKey = !!process.env.OPENAI_API_KEY;
     
-    if (!hasOpenAIKey || isDemo) {
-      console.log('Using demo mode for triage response:', { isNetlify, isDemo, hasOpenAIKey });
+    if (!hasOpenAIKey) {
+      console.log('OpenAI API key not available, using demo mode fallback');
       
       // Add a small delay to simulate processing
       await new Promise(resolve => setTimeout(resolve, 1500));
@@ -190,6 +188,8 @@ export async function POST(request: NextRequest) {
         demo: true // Add demo flag for frontend
       });
     }
+    
+    console.log('Using real OpenAI API for triage response');
 
     // Build conversation history for context
     const conversationHistory = [

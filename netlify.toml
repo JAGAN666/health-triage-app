@@ -8,19 +8,9 @@
 [build.environment]
   NODE_VERSION = "18"
   NETLIFY = "true"
-  DEMO_MODE = "true"
 
-[[redirects]]
-  from = "/api/triage"
-  to = "/.netlify/functions/api/triage"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/api/:splat"
-  status = 200
-  force = true
+# Let Next.js handle API routes directly via @netlify/plugin-nextjs
+# No redirects needed - Next.js API routes will work natively
 
 [functions]
   directory = "netlify/functions"
