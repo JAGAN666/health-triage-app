@@ -3,15 +3,17 @@ import { NextRequest, NextResponse } from "next/server";
 
 // Demo mode check - enable demo access when API routes are unavailable
 function isDemoMode(req: NextRequest): boolean {
-  // Check if we're in Netlify environment or API routes are unavailable
-  const isNetlify = process.env.NETLIFY === 'true';
-  const demoModeEnabled = process.env.DEMO_MODE === 'true' || isNetlify;
+  // In Netlify environment, always enable demo mode for protected routes
+  const isNetlify = process.env.NETLIFY === 'true' || 
+                    req.headers.get('host')?.includes('netlify.app') ||
+                    req.headers.get('x-forwarded-host')?.includes('netlify.app');
   
   // Demo mode cookies/headers check
   const demoAuth = req.cookies.get('demo-auth')?.value;
   const demoUser = req.cookies.get('demo-user')?.value;
   
-  return demoModeEnabled && (demoAuth === 'true' || demoUser);
+  // In Netlify, enable demo mode automatically, otherwise check for explicit demo auth
+  return isNetlify || (demoAuth === 'true' || !!demoUser);
 }
 
 export default withAuth(

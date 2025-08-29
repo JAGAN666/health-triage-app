@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Configure for Netlify deployment with SSR support
-  trailingSlash: true,
+  // trailingSlash: true, // Removed as it may cause routing issues
   
   // Enable image optimization
   images: {
