@@ -1,14 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Netlify-optimized configuration for SSR
-  output: 'standalone',
-  
-  // Essential image optimization for Netlify
-  images: {
-    unoptimized: true,
-  },
-  
-  // Keep essential experimental features
+  // Vercel-optimized configuration
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
