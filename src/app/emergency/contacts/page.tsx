@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useDemoAuth } from '@/contexts/DemoAuthContext';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -57,26 +58,25 @@ const RELATIONSHIPS = [
   'Other'
 ];
 
-export default function EmergencyContactsPage() {
-  const [contacts, setContacts] = useState<EmergencyContact[]>([
-    {
-      id: '1',
-      name: 'Jane Doe',
-      relationship: 'Spouse/Partner',
-      phone: '+1 (555) 987-6543',
-      email: 'jane.doe@email.com',
-      address: '123 Main St, Anytown, ST 12345',
-      isPrimary: true,
-      canReceiveAlerts: true,
-      availableHours: '24/7',
-      medicalInfo: 'Knows all medical history and medications'
-    },
-    {
-      id: '2',
-      name: 'Dr. Sarah Johnson',
-      relationship: 'Doctor',
-      phone: '+1 (555) 123-4567',
-      email: 'dr.johnson@clinic.com',
+const DEFAULT_DEMO_CONTACTS: EmergencyContact[] = [
+  {
+    id: '1',
+    name: 'Jane Doe',
+    relationship: 'Spouse/Partner',
+    phone: '+1 (555) 987-6543',
+    email: 'jane.doe@email.com',
+    address: '123 Main St, Anytown, ST 12345',
+    isPrimary: true,
+    canReceiveAlerts: true,
+    availableHours: '24/7',
+    medicalInfo: 'Knows all medical history and medications'
+  },
+  {
+    id: '2',
+    name: 'Dr. Sarah Johnson',
+    relationship: 'Doctor',
+    phone: '+1 (555) 123-4567',
+    email: 'dr.johnson@clinic.com',
       isPrimary: false,
       canReceiveAlerts: true,
       availableHours: '9 AM - 5 PM Mon-Fri',
@@ -92,7 +92,11 @@ export default function EmergencyContactsPage() {
       canReceiveAlerts: false,
       availableHours: 'Evenings and weekends',
     }
-  ]);
+];
+
+export default function EmergencyContactsPage() {
+  const { isAuthenticated, isDemo, user, enableDemoMode } = useDemoAuth();
+  const [contacts, setContacts] = useState<EmergencyContact[]>([]);
 
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -109,12 +113,21 @@ export default function EmergencyContactsPage() {
   });
 
   useEffect(() => {
+    // Auto-enable demo mode if not authenticated
+    if (!isAuthenticated) {
+      enableDemoMode();
+    }
+    
     // Load contacts from localStorage
     const saved = localStorage.getItem('emergency-contacts');
     if (saved) {
       setContacts(JSON.parse(saved));
+    } else if (isDemo) {
+      // If no saved contacts and in demo mode, use default demo data
+      setContacts(DEFAULT_DEMO_CONTACTS);
+      localStorage.setItem('emergency-contacts', JSON.stringify(DEFAULT_DEMO_CONTACTS));
     }
-  }, []);
+  }, [isAuthenticated, isDemo, enableDemoMode]);
 
   const saveToStorage = (updatedContacts: EmergencyContact[]) => {
     localStorage.setItem('emergency-contacts', JSON.stringify(updatedContacts));
@@ -229,6 +242,17 @@ export default function EmergencyContactsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50">
+      {/* Demo Mode Banner */}
+      {isDemo && (
+        <div className="bg-blue-100 border-b border-blue-200 px-4 py-2">
+          <div className="max-w-6xl mx-auto">
+            <p className="text-sm text-blue-800 text-center">
+              🧪 <strong>Demo Mode Active</strong> - You're viewing emergency contacts with demo data. Changes are saved locally.
+            </p>
+          </div>
+        </div>
+      )}
+      
       {/* Header */}
       <div className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 py-6">

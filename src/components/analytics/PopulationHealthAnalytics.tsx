@@ -549,7 +549,7 @@ export default function PopulationHealthAnalytics() {
       setIsAnalyzing(false);
       
       // Could update predictions, alerts, etc. here
-      console.log('Advanced analysis completed');
+      // Advanced analysis completed (removed console.log for production)
     }, 5000);
   };
 

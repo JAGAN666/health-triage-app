@@ -252,8 +252,8 @@ export default function OptimizedHealthDashboard() {
 
   // Optimized event handlers
   const handleViewMetricDetails = reactOptimization.callbackWithPerf((metricId: string) => {
-    console.log(`Viewing details for metric: ${metricId}`);
-    // Navigate to detailed view
+    // Navigate to detailed metric view (removed console.log for production)
+    // TODO: Implement navigation to detailed view
   }, []);
 
   const handleDismissInsight = reactOptimization.callbackWithPerf((insightId: string) => {

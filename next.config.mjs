@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable server-side rendering for Netlify
-  output: 'standalone',
+  // Configure for Netlify deployment with SSR support
+  trailingSlash: true,
   
   // Enable image optimization
   images: {
@@ -13,7 +13,6 @@ const nextConfig = {
   
   // Enable experimental features
   experimental: {
-    appDir: true,
     optimizePackageImports: ['lucide-react', 'framer-motion', '@radix-ui/react-dialog'],
   },
   

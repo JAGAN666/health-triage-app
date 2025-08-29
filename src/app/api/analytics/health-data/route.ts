@@ -177,8 +177,17 @@ export async function GET(request: NextRequest) {
     const timeframe = searchParams.get('timeframe') || '30d'; // 7d, 30d, 90d
     const includeComparison = searchParams.get('comparison') === 'true';
     
-    // TODO: Get user ID from authentication token
-    const userId = '1'; // Mock user ID
+    // Get authenticated user session
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { error: 'Unauthorized. Please log in.' },
+        { status: 401 }
+      );
+    }
+
+    const userId = session.user.email; // Use email as identifier for analytics
     
     const analytics = generateHealthAnalytics(userId, timeframe);
     
@@ -213,8 +222,17 @@ export async function POST(request: NextRequest) {
       includeComparison = false 
     } = body;
     
-    // TODO: Get user ID from authentication token
-    const userId = '1'; // Mock user ID
+    // Get authenticated user session
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { error: 'Unauthorized. Please log in.' },
+        { status: 401 }
+      );
+    }
+
+    const userId = session.user.email; // Use email as identifier for analytics
     
     // Calculate timeframe
     const start = new Date(startDate);

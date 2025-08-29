@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useDemoAuth } from '@/contexts/DemoAuthContext';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -71,6 +72,7 @@ const TIME_SLOTS: TimeSlot[] = [
 function AppointmentsForm() {
   const searchParams = useSearchParams();
   const providerId = searchParams.get('provider');
+  const { isAuthenticated, isDemo, enableDemoMode } = useDemoAuth();
   
   const [activeTab, setActiveTab] = useState<'book' | 'upcoming' | 'history'>('book');
   const [selectedDate, setSelectedDate] = useState('');
@@ -81,14 +83,16 @@ function AppointmentsForm() {
   const [isBooking, setIsBooking] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
 
-  // Mock appointments data
-  const [appointments, setAppointments] = useState<Appointment[]>([
+  // Mock appointments data with localStorage persistence
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  
+  const DEFAULT_DEMO_APPOINTMENTS: Appointment[] = [
     {
       id: '1',
       providerId: '1',
       providerName: 'Dr. Sarah Johnson',
       specialty: 'Family Medicine',
-      date: '2024-02-15',
+      date: '2024-03-15',
       time: '2:00 PM',
       type: 'video',
       status: 'upcoming',
@@ -99,21 +103,37 @@ function AppointmentsForm() {
       providerId: '2',
       providerName: 'Dr. Michael Chen',
       specialty: 'Internal Medicine',
-      date: '2024-01-20',
+      date: '2024-02-20',
       time: '10:30 AM',
       type: 'video',
       status: 'completed',
       reason: 'Follow-up consultation',
     }
-  ]);
+  ];
 
-  // Set default date to today
+  // Auto-enable demo mode if not authenticated and load appointments
   useEffect(() => {
+    // Auto-enable demo mode if not authenticated
+    if (!isAuthenticated) {
+      enableDemoMode();
+    }
+    
+    // Set default date to tomorrow
     const today = new Date();
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
     setSelectedDate(tomorrow.toISOString().split('T')[0]);
-  }, []);
+    
+    // Load appointments from localStorage
+    const saved = localStorage.getItem('telehealth-appointments');
+    if (saved) {
+      setAppointments(JSON.parse(saved));
+    } else if (isDemo) {
+      // If no saved appointments and in demo mode, use default demo data
+      setAppointments(DEFAULT_DEMO_APPOINTMENTS);
+      localStorage.setItem('telehealth-appointments', JSON.stringify(DEFAULT_DEMO_APPOINTMENTS));
+    }
+  }, [isAuthenticated, isDemo, enableDemoMode]);
 
   const handleBookAppointment = async () => {
     if (!selectedDate || !selectedTime || !reason) {
@@ -137,7 +157,12 @@ function AppointmentsForm() {
         location: appointmentType === 'in-person' ? '123 Medical Center Dr, Suite 100' : undefined
       };
 
-      setAppointments(prev => [newAppointment, ...prev]);
+      const updatedAppointments = [newAppointment, ...appointments];
+      setAppointments(updatedAppointments);
+      
+      // Save to localStorage
+      localStorage.setItem('telehealth-appointments', JSON.stringify(updatedAppointments));
+      
       setIsBooking(false);
       setBookingSuccess(true);
       
@@ -185,6 +210,16 @@ function AppointmentsForm() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      {/* Demo Mode Banner */}
+      {isDemo && (
+        <div className="bg-blue-100 border-b border-blue-200 px-4 py-2">
+          <div className="max-w-6xl mx-auto">
+            <p className="text-sm text-blue-800 text-center">
+              🧪 <strong>Demo Mode Active</strong> - You're viewing telehealth appointments with demo data. Bookings are simulated.
+            </p>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <div className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 py-6">

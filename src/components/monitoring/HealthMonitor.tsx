@@ -62,6 +62,7 @@ export default function HealthMonitor() {
   const [deviceConnected, setDeviceConnected] = useState(false);
   const [cameraAccess, setCameraAccess] = useState(false);
   const [monitoringMethod, setMonitoringMethod] = useState<'camera' | 'device' | 'manual'>('camera');
+  const [error, setError] = useState<string>('');
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -98,7 +99,19 @@ export default function HealthMonitor() {
 
     } catch (error) {
       console.error('Failed to start monitoring:', error);
-      alert('Failed to start monitoring. Please check your permissions and try again.');
+      
+      // Provide more specific error messages
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : 'An unknown error occurred';
+        
+      if (errorMessage.includes('Permission denied')) {
+        setError('Camera and microphone permissions are required for monitoring. Please allow access and try again.');
+      } else if (errorMessage.includes('NotFoundError')) {
+        setError('No camera or microphone found. Please check your device connections.');
+      } else {
+        setError(`Failed to start monitoring: ${errorMessage}. Please try again.`);
+      }
     }
   };
 
@@ -466,6 +479,28 @@ export default function HealthMonitor() {
                 <Smartphone className="w-6 h-6 mb-2 text-blue-600" />
                 <h3 className="font-semibold">Manual Entry</h3>
                 <p className="text-sm text-gray-600">Enter vitals manually</p>
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Error Display */}
+      {error && (
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="w-5 h-5 text-red-600" />
+              <div>
+                <p className="font-medium text-red-900">Monitoring Error</p>
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+              <button
+                onClick={() => setError('')}
+                className="ml-auto text-red-400 hover:text-red-600"
+                aria-label="Dismiss error"
+              >
+                ×
               </button>
             </div>
           </CardContent>

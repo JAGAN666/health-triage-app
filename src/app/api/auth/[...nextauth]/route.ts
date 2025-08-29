@@ -37,7 +37,7 @@ const users = [
 ];
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter: prisma ? PrismaAdapter(prisma) : undefined,
   providers: [
     CredentialsProvider({
       id: 'credentials',
@@ -52,23 +52,34 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          // First, try to find user in database
-          let user = await prisma.user.findUnique({
-            where: { email: credentials.email }
-          });
+          let user;
+          
+          // Check if we're in serverless/mock mode
+          if (!prisma) {
+            // Use mock users directly in serverless environment
+            user = users.find(u => u.email === credentials.email);
+            if (!user) {
+              throw new Error('No user found with this email');
+            }
+          } else {
+            // First, try to find user in database
+            user = await prisma.user.findUnique({
+              where: { email: credentials.email }
+            });
 
-          // If user doesn't exist, check mock users and create them
-          if (!user) {
-            const mockUser = users.find(u => u.email === credentials.email);
-            if (mockUser) {
-              user = await prisma.user.create({
-                data: {
-                  email: mockUser.email,
-                  name: mockUser.name,
-                  password: mockUser.password,
-                  role: mockUser.role
-                }
-              });
+            // If user doesn't exist, check mock users and create them
+            if (!user) {
+              const mockUser = users.find(u => u.email === credentials.email);
+              if (mockUser) {
+                user = await prisma.user.create({
+                  data: {
+                    email: mockUser.email,
+                    name: mockUser.name,
+                    password: mockUser.password,
+                    role: mockUser.role
+                  }
+                });
+              }
             }
           }
           
@@ -131,8 +142,9 @@ export const authOptions: NextAuthOptions = {
     error: '/auth/error'
   },
   
+  // Use JWT strategy in serverless environments, database strategy otherwise
   session: {
-    strategy: 'jwt',
+    strategy: prisma ? 'database' : 'jwt',
     maxAge: 7 * 24 * 60 * 60 // 7 days
   },
   

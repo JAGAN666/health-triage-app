@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useDemoAuth } from '@/contexts/DemoAuthContext';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -54,6 +55,7 @@ interface UserProfile {
 
 export default function AccountPage() {
   const { healthData, healthScore } = useHealthData();
+  const { isAuthenticated, isDemo, user, enableDemoMode } = useDemoAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState<UserProfile>({
     id: '1',
@@ -82,12 +84,26 @@ export default function AccountPage() {
   });
 
   useEffect(() => {
+    // Auto-enable demo mode if not authenticated
+    if (!isAuthenticated) {
+      enableDemoMode();
+    }
+    
     // Load user profile from localStorage or API
     const savedProfile = localStorage.getItem('user-profile');
     if (savedProfile) {
       setProfile(JSON.parse(savedProfile));
+    } else if (isDemo && user) {
+      // Set profile to demo user data if in demo mode
+      const demoProfile = {
+        ...profile,
+        name: user.name,
+        email: user.email,
+        // Keep other defaults for demo
+      };
+      setProfile(demoProfile);
     }
-  }, []);
+  }, [isAuthenticated, isDemo, user, enableDemoMode]);
 
   const handleSave = () => {
     localStorage.setItem('user-profile', JSON.stringify(profile));
@@ -114,6 +130,17 @@ export default function AccountPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      {/* Demo Mode Banner */}
+      {isDemo && (
+        <div className="bg-blue-100 border-b border-blue-200 px-4 py-2">
+          <div className="max-w-6xl mx-auto">
+            <p className="text-sm text-blue-800 text-center">
+              👤 <strong>Demo Mode Active</strong> - You're viewing account settings with demo data. Changes are saved locally.
+            </p>
+          </div>
+        </div>
+      )}
+      
       {/* Header */}
       <div className="bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 py-6">

@@ -3,6 +3,7 @@ import { Inter, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { HealthDataProvider } from "@/contexts/HealthDataContext";
+import { DemoAuthProvider } from "@/contexts/DemoAuthContext";
 import SessionProvider from "@/components/providers/SessionProvider";
 // import ServiceWorkerManager from "@/components/common/ServiceWorkerManager"; // DISABLED
 import ClientOnlyScripts from "@/components/common/ClientOnlyScripts";
@@ -186,9 +187,10 @@ export default function RootLayout({
         />
         
         <SessionProvider>
-          <HealthDataProvider>
-            <LanguageProvider>
-              <div id="app-root" className="relative">
+          <DemoAuthProvider>
+            <HealthDataProvider>
+              <LanguageProvider>
+                <div id="app-root" className="relative">
                 <main id="main-content" role="main" className="relative">
                   {children}
                 </main>
@@ -210,9 +212,10 @@ export default function RootLayout({
                   enableInstallPrompt={true}
                 /> */}
                 <ClientOnlyScripts />
-              </div>
-            </LanguageProvider>
-          </HealthDataProvider>
+                </div>
+              </LanguageProvider>
+            </HealthDataProvider>
+          </DemoAuthProvider>
         </SessionProvider>
       </body>
     </html>
